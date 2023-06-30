@@ -16,14 +16,6 @@ All notable changes to this project will be documented in this file.
 - Tidy notifications copy (#3561)
 - Predefined ipset lists not loading #3552 (#3557)
 
-## [1.7.7] - Service release
-
-### Bugfixes
-
-- Fix #3588: Delete issue DNS record (#3589)
-- Tidy notifications copy (#3561)
-- Predefined ipset lists not loading #3552 (#3557)
-
 ## [1.7.6] - Service release
 
 ### Bugfixes
