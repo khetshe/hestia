@@ -74,7 +74,6 @@ help() {
   -d, --api               Activate API          [yes|no]  default: yes
   -r, --port              Change Backend Port             default: 8083
   -l, --lang              Default language                default: en
-  -y, --interactive       Interactive install   [yes|no]  default: yes
   -s, --hostname          Set hostname
   -e, --email             Set admin email
   -p, --password          Set admin password
@@ -216,7 +215,6 @@ for arg; do
 		--quota) args="${args}-q " ;;
 		--port) args="${args}-r " ;;
 		--lang) args="${args}-l " ;;
-		--interactive) args="${args}-y " ;;
 		--api) args="${args}-d " ;;
 		--hostname) args="${args}-s " ;;
 		--email) args="${args}-e " ;;
@@ -255,7 +253,6 @@ while getopts "a:w:v:j:k:m:M:g:d:x:z:Z:c:t:i:b:r:o:q:l:y:s:e:p:D:fh" Option; do
 		r) port=$OPTARG ;;         # Backend Port
 		l) lang=$OPTARG ;;         # Language
 		d) api=$OPTARG ;;          # Activate API
-		y) interactive=$OPTARG ;;  # Interactive install
 		s) servername=$OPTARG ;;   # Hostname
 		e) email=$OPTARG ;;        # Admin email
 		p) vpass=$OPTARG ;;        # Admin password
@@ -293,7 +290,6 @@ fi
 set_default_value 'iptables' 'yes'
 set_default_value 'fail2ban' 'yes'
 set_default_value 'quota' 'no'
-set_default_value 'interactive' 'yes'
 set_default_value 'api' 'yes'
 set_default_port '8083'
 set_default_lang 'en'
@@ -579,16 +575,7 @@ echo -e "\n"
 echo "========================================================================"
 echo -e "\n"
 
-# Asking for confirmation to proceed
-if [ "$interactive" = 'yes' ]; then
-	read -p 'Would you like to continue with the installation? [Y/N]: ' answer
-	if [ "$answer" != 'y' ] && [ "$answer" != 'Y' ]; then
-		echo 'Goodbye'
-		exit 1
-	fi
-fi
-
-# Validate Email / Hostname even when interactive = no
+# Validate Email / Hostname
 # Asking for contact email
 if [ -z "$email" ]; then
 	while validate_email; do
@@ -2234,11 +2221,6 @@ $HESTIA/bin/v-add-user-notification admin 'Welcome to Hestia Control Panel!' '<b
 # Sort final configuration file
 sort_config_file
 
-if [ "$interactive" = 'yes' ]; then
-	echo "[ ! ] IMPORTANT: The system will now reboot to complete the installation process."
-	read -n 1 -s -r -p "Press any key to continue"
-	reboot
-else
-	echo "[ ! ] IMPORTANT: You must restart the system before continuing!"
-fi
+
+echo "[ ! ] IMPORTANT: You must restart the system before continuing!"
 # EOF
