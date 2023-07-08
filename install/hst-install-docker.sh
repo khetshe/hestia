@@ -355,7 +355,7 @@ mkdir -p "$hst_backups"
 
 # Pre-install packages
 echo "[ * ] Installing dependencies..."
-apt-get -y install $installer_dependencies >> $LOG
+apt-get -qq -y install $installer_dependencies >> $LOG
 check_result $? "Package installation failed, check log file for more details."
 
 # Check repository availability
@@ -718,7 +718,7 @@ echo
 # Updating system
 echo -ne "Updating currently installed packages, please wait... "
 apt-get -qq update
-apt-get -y upgrade >> $LOG &
+apt-get -qq -y upgrade >> $LOG &
 BACK_PID=$!
 
 # Check if package installation is done, print a spinner
@@ -797,7 +797,7 @@ mv -f /root/.my.cnf $hst_backups/mysql > /dev/null 2>&1
 # Backup Hestia
 systemctl stop hestia > /dev/null 2>&1
 cp -r $HESTIA/* $hst_backups/hestia > /dev/null 2>&1
-apt-get -y purge hestia hestia-nginx hestia-php > /dev/null 2>&1
+apt-get -qq -y purge hestia hestia-nginx hestia-php > /dev/null 2>&1
 rm -rf $HESTIA > /dev/null 2>&1
 
 #----------------------------------------------------------#
@@ -936,7 +936,7 @@ chmod a+x /usr/sbin/policy-rc.d
 echo "The installer is now downloading and installing all required packages."
 echo -ne "NOTE: This process may take 10 to 15 minutes to complete, please wait... "
 echo
-apt-get -y install $software > $LOG
+apt-get -qq -y install $software > $LOG
 BACK_PID=$!
 
 # Check if package installation is done, print a spinner
@@ -965,7 +965,7 @@ if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
 
 	if [ -z $(ls $withdebs/hestia-php_*.deb 2> /dev/null) ]; then
 		echo "    - hestia-php backend package (from apt)"
-		apt-get -y install hestia-php > /dev/null 2>&1
+		apt-get -qq -y install hestia-php > /dev/null 2>&1
 	else
 		echo "    - hestia-php backend package"
 		dpkg -i $withdebs/hestia-php_*.deb > /dev/null 2>&1
@@ -973,7 +973,7 @@ if [ -n "$withdebs" ] && [ -d "$withdebs" ]; then
 
 	if [ -z $(ls $withdebs/hestia-nginx_*.deb 2> /dev/null) ]; then
 		echo "    - hestia-nginx backend package (from apt)"
-		apt-get -y install hestia-nginx > /dev/null 2>&1
+		apt-get -qq -y install hestia-nginx > /dev/null 2>&1
 	else
 		echo "    - hestia-nginx backend package"
 		dpkg -i $withdebs/hestia-nginx_*.deb > /dev/null 2>&1
@@ -2101,7 +2101,7 @@ $HESTIA/bin/v-update-sys-defaults
 # Update remaining packages since repositories have changed
 echo -ne "[ * ] Installing remaining software updates..."
 apt-get -qq update
-apt-get -y upgrade >> $LOG &
+apt-get -qq -y upgrade >> $LOG &
 BACK_PID=$!
 echo
 
