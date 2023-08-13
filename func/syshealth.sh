@@ -339,8 +339,8 @@ function syshealth_repair_system_config() {
 
 	# Enforce subdomain ownership
 	if [[ -z $(check_key_exists 'ENFORCE_SUBDOMAIN_OWNERSHIP') ]]; then
-		echo "[ ! ] Adding missing variable to hestia.conf: ENFORCE_SUBDOMAIN_OWNERSHIP ('no')"
-		$BIN/v-change-sys-config-value "ENFORCE_SUBDOMAIN_OWNERSHIP" "no"
+		echo "[ ! ] Adding missing variable to hestia.conf: ENFORCE_SUBDOMAIN_OWNERSHIP ('yes')"
+		$BIN/v-change-sys-config-value "ENFORCE_SUBDOMAIN_OWNERSHIP" "yes"
 	fi
 
 	if [[ -z $(check_key_exists 'API') ]]; then
@@ -482,6 +482,48 @@ function syshealth_repair_system_config() {
 	if [[ -z $(check_key_exists 'DISABLE_IP_CHECK') ]]; then
 		echo "[ ! ] Adding missing variable to hestia.conf: DISABLE_IP_CHECK ('no')"
 		$BIN/v-change-sys-config-value "DISABLE_IP_CHECK" "no"
+	fi
+	if [[ -z $(check_key_exists 'APP_NAME') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: APP_NAME ('Hestia Control Panel')"
+		$BIN/v-change-sys-config-value "APP_NAME" "Hestia Control Panel"
+	fi
+	if [[ -z $(check_key_exists 'FROM_NAME') ]]; then
+		# Default is always APP_NAME
+		echo "[ ! ] Adding missing variable to hestia.conf: FROM_NAME ('')"
+		$BIN/v-change-sys-config-value "FROM_NAME" ""
+	fi
+	if [[ -z $(check_key_exists 'FROM_EMAIL') ]]; then
+		# Default is always noreply@hostname.com
+		echo "[ ! ] Adding missing variable to hestia.conf: FROM_EMAIL ('')"
+		$BIN/v-change-sys-config-value "FROM_EMAIL" ""
+	fi
+	if [[ -z $(check_key_exists 'SUBJECT_EMAIL') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: SUBJECT_EMAIL ('{{subject}}')"
+		$BIN/v-change-sys-config-value "SUBJECT_EMAIL" "{{subject}}"
+	fi
+
+	if [[ -z $(check_key_exists 'TITLE') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: TITLE ('{{page}} - {{hostname}} - {{appname}}')"
+		$BIN/v-change-sys-config-value "TITLE" "{{page}} - {{hostname}} - {{appname}}"
+	fi
+
+	if [[ -z $(check_key_exists 'HIDE_DOCS') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: HIDE_DOCS ('no')"
+		$BIN/v-change-sys-config-value "HIDE_DOCS" "no"
+	fi
+
+	if [[ -z $(check_key_exists 'POLICY_SYNC_ERROR_DOCUMENTS') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: POLICY_SYNC_ERROR_DOCUMENTS ('yes')"
+		$BIN/v-change-sys-config-value "POLICY_SYNC_ERROR_DOCUMENTS" "yes"
+	fi
+
+	if [[ -z $(check_key_exists 'POLICY_SYNC_SKELETON') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: POLICY_SYNC_SKELETON ('yes')"
+		$BIN/v-change-sys-config-value "POLICY_SYNC_SKELETON" "yes"
+	fi
+	if [[ -z $(check_key_exists 'POLICY_BACKUP_SUSPENDED_USERS') ]]; then
+		echo "[ ! ] Adding missing variable to hestia.conf: POLICY_BACKUP_SUSPENDED_USERS ('no')"
+		$BIN/v-change-sys-config-value "POLICY_BACKUP_SUSPENDED_USERS" "no"
 	fi
 
 	touch $HESTIA/conf/hestia.conf.new

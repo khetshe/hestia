@@ -40,6 +40,53 @@ function setup() {
 }
 
 function validate_web_domain() {
+	local user=$1
+	local domain=$2
+	local webproof=$3
+	local webpath=${4}
+
+	refute [ -z "$user" ]
+	refute [ -z "$domain" ]
+	refute [ -z "$webproof" ]
+
+	source $HESTIA/func/ip.sh
+
+	run v-list-web-domain $user $domain
+	assert_success
+
+	USER_DATA=$HESTIA/data/users/$user
+	local domain_ip=$(get_object_value 'web' 'DOMAIN' "$domain" '$IP')
+	SSL=$(get_object_value 'web' 'DOMAIN' "$domain" '$SSL')
+	domain_ip=$(get_real_ip "$domain_ip")
+
+	if [ ! -z $webpath ]; then
+		domain_docroot=$(get_object_value 'web' 'DOMAIN' "$domain" '$CUSTOM_DOCROOT')
+		if [ -n "$domain_docroot" ] && [ -d "$domain_docroot" ]; then
+			assert_file_exist "${domain_docroot}/${webpath}"
+		else
+			assert_file_exist "${HOMEDIR}/${user}/web/${domain}/public_html/${webpath}"
+		fi
+	fi
+
+	# Test HTTP
+	# Curl hates UTF domains so convert them to ascci.
+	domain_idn=$(idn2 $domain)
+	run curl --location --silent --show-error --insecure --resolve "${domain_idn}:80:${domain_ip}" "http://${domain_idn}/${webpath}"
+	assert_success
+	assert_output --partial "$webproof"
+
+	# Test HTTPS
+	if [ "$SSL" = "yes" ]; then
+		run v-list-web-domain-ssl $user $domain
+		assert_success
+
+		run curl --location --silent --show-error --insecure --resolve "${domain_idn}:443:${domain_ip}" "https://${domain_idn}/${webpath}"
+		assert_success
+		assert_output --partial "$webproof"
+	fi
+}
+
+function validate_web_domain() {
     local user=$1
     local domain=$2
     local webproof=$3
@@ -617,9 +664,9 @@ function check_ip_not_banned(){
 
 @test "Ip: [Debian] Netplan file updated" {
    # Skip with netplan
-   if [ -f /etc/netplan/60-hestia.yaml ]; then
-   skip
-   fi
+   if [ $(lsb_release -s -i) = "Ubuntu" ]; then
+	 skip
+	 fi
 
    assert_file_exist  /etc/network/interfaces
    assert_file_contains  /etc/network/interfaces "$ip"
@@ -651,7 +698,7 @@ function check_ip_not_banned(){
     fi
 }
 
-@test "Ip: Delete ips" {
+@test "Ip: Delete ip 198.18.0.12" {
     local ip="198.18.0.12"
     run v-delete-sys-ip $ip
     assert_success
@@ -659,31 +706,43 @@ function check_ip_not_banned(){
 
     assert_file_not_exist /etc/$WEB_SYSTEM/conf.d/$ip.conf
     assert_file_not_exist $HESTIA/data/ips/$ip
+}
 
+@test "Ip: [Ubuntu] Netplan file changed" {
+	 # Skip if Debian
+	 if [ $(lsb_release -s -i) != "Ubuntu" ]; then
+	 skip
+	 fi
 
-    ip="198.18.0.121"
-    run v-delete-sys-ip $ip
-    assert_success
-    refute_output
+	 ip="198.18.0.121"
+	 assert_file_exist /etc/netplan/60-hestia.yaml
+	 assert_file_contains /etc/netplan/60-hestia.yaml "$ip"
+}
 
-    assert_file_not_exist /etc/$WEB_SYSTEM/conf.d/$ip.conf
-    assert_file_not_exist $HESTIA/data/ips/$ip
+@test "Ip: Delete ip 198.18.0.121" {
+	ip="198.18.0.121"
+	run v-delete-sys-ip $ip
+	assert_success
+	refute_output
 
-    if [ -n "$PROXY_SYSTEM" ]; then
-        assert_file_not_exist /etc/$PROXY_SYSTEM/conf.d/$ip.conf
-    fi
+	assert_file_not_exist /etc/$WEB_SYSTEM/conf.d/$ip.conf
+	assert_file_not_exist $HESTIA/data/ips/$ip
 
-    # remoteip and rpaf config hashes must match the initial one
-    if [ ! -z "$a2_rpaf_hash" ]; then
-        local a2_rpaf="/etc/$WEB_SYSTEM/mods-enabled/rpaf.conf"
-        file_hash=$(cat $a2_rpaf |md5sum |cut -d" " -f1)
-        assert_equal "$file_hash" "$a2_rpaf_hash"
-    fi
-    if [ ! -z "$a2_remoteip_hash" ]; then
-        local a2_remoteip="/etc/$WEB_SYSTEM/mods-enabled/remoteip.conf"
-        file_hash=$(cat $a2_remoteip |md5sum |cut -d" " -f1)
-        assert_equal "$file_hash" "$a2_remoteip_hash"
-    fi
+	if [ -n "$PROXY_SYSTEM" ]; then
+			assert_file_not_exist /etc/$PROXY_SYSTEM/conf.d/$ip.conf
+	fi
+
+	# remoteip and rpaf config hashes must match the initial one
+	if [ ! -z "$a2_rpaf_hash" ]; then
+			local a2_rpaf="/etc/$WEB_SYSTEM/mods-enabled/rpaf.conf"
+			file_hash=$(cat $a2_rpaf |md5sum |cut -d" " -f1)
+			assert_equal "$file_hash" "$a2_rpaf_hash"
+	fi
+	if [ ! -z "$a2_remoteip_hash" ]; then
+			local a2_remoteip="/etc/$WEB_SYSTEM/mods-enabled/remoteip.conf"
+			file_hash=$(cat $a2_remoteip |md5sum |cut -d" " -f1)
+			assert_equal "$file_hash" "$a2_remoteip_hash"
+	fi
 }
 
 @test "Ip: Add IP for rest of the test" {
@@ -767,7 +826,10 @@ function check_ip_not_banned(){
     assert_success
     refute_output
 
+	echo -e "<?php\necho 'Hestia Test:'.(4*3);" > $HOMEDIR/$user/web/$domain/public_html/php-test.php
     validate_web_domain $user $domain 'This site is currently suspended'
+	validate_web_domain $user $domain 'This site is currently suspended' 'php-test.php'
+	rm $HOMEDIR/$user/web/$domain/public_html/php-test.php
 }
 
 @test "WEB: Unsuspend web domain" {
@@ -1479,16 +1541,16 @@ function check_ip_not_banned(){
     validate_webmail_domain $user $domain 'Welcome to Roundcube Webmail'
 }
 
-@test "MAIL: Add mail domain webmail client (Rainloop)" {
-    if [ -z "$(echo $WEBMAIL_SYSTEM | grep -w "rainloop")" ]; then
-        skip "Webmail client Rainloop not installed"
+@test "MAIL: Add mail domain webmail client (SnappyMail)" {
+    if [ -z "$(echo $WEBMAIL_SYSTEM | grep -w "snappymail")" ]; then
+        skip "Webmail client SnappyMail not installed"
     fi
-    run v-add-mail-domain-webmail $user $domain "rainloop" "yes"
+    run v-add-mail-domain-webmail $user $domain "snappymail" "yes"
     assert_success
     refute_output
     validate_mail_domain $user $domain
 
-    validate_webmail_domain $user $domain 'RainLoop Webmail'
+    validate_webmail_domain $user $domain 'SnappyMail Webmail'
 }
 
 @test "MAIL: Disable webmail client" {
@@ -1521,12 +1583,48 @@ function check_ip_not_banned(){
 	assert_failure $E_EXISTS
 }
 
+@test "MAIL: Add account 2" {
+	run v-add-mail-account $user $domain random "$userpass2"
+	assert_success
+	assert_file_contains  /etc/exim4/domains/$domain/limits "random@$domain"
+	refute_output
+}
+
 @test "MAIL: Add account alias" {
 	run v-add-mail-account-alias $user $domain test hestiacprocks
 	assert_success
 	assert_file_contains /etc/exim4/domains/$domain/aliases "hestiacprocks@$domain"
 	refute_output
 }
+
+@test "MAIL: Add account alias 2" {
+	run v-add-mail-account-alias $user $domain test hestiacprocks2
+	assert_success
+	assert_file_contains /etc/exim4/domains/$domain/aliases "hestiacprocks2@$domain"
+	refute_output
+}
+
+@test "MAIL: Add account alias 3" {
+	run v-add-mail-account-alias $user $domain test hestiacp
+	assert_success
+	assert_file_contains /etc/exim4/domains/$domain/aliases "hestiacp@$domain"
+	refute_output
+}
+
+@test "MAIL: Add account 3" {
+	run v-add-mail-account $user $domain hestia "$userpass2"
+	assert_success
+	assert_file_contains /etc/exim4/domains/$domain/limits "hestia@$domain"
+	refute_output
+}
+
+@test "MAIL: Add account 4" {
+	run v-add-mail-account $user $domain hestiarocks3 "$userpass2"
+	assert_success
+	assert_file_contains /etc/exim4/domains/$domain/limits "hestiarocks3@$domain"
+	refute_output
+}
+
 
 @test "MAIL: Add account alias Invalid length" {
 	run v-add-mail-account-alias $user $domain test 'hestiacp-realy-rocks-but-i-want-to-have-feature-xyz-and-i-want-it-now'
@@ -1628,8 +1726,8 @@ function check_ip_not_banned(){
 #----------------------------------------------------------#
 
 @test "Allow Users: User can't add user.user2.com " {
-    # Case: admin company.ltd
-    # users should not be allowed to add user.company.ltd
+    # Case: admin company.tld
+    # users should not be allowed to add user.company.tld
     run v-add-user $user2 $user2 $user@hestiacp.com default "Super Test"
     assert_success
     refute_output
@@ -1659,8 +1757,8 @@ function check_ip_not_banned(){
 
 @test "Allow Users: Set Allow users" {
     # Allow user to yes allows
-    # Case: admin company.ltd
-    # users are allowed to add user.company.ltd
+    # Case: admin company.tld
+    # users are allowed to add user.company.tld
     run v-add-web-domain-allow-users $user2 $rootdomain
     assert_success
     refute_output

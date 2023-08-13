@@ -129,8 +129,8 @@ log_history() {
 	fi
 	touch $log
 
-	if [ '750' -lt "$(wc -l $log | cut -f 1 -d ' ')" ]; then
-		tail -n 499 $log > $log.moved
+	if [ '300' -lt "$(wc -l $log | cut -f 1 -d ' ')" ]; then
+		tail -n 250 $log > $log.moved
 		mv -f $log.moved $log
 		chmod 660 $log
 	fi
@@ -1025,15 +1025,15 @@ is_int_format_valid() {
 
 # Interface validator
 is_interface_format_valid() {
-	netdevices=$(cat /proc/net/dev | grep : | cut -f 1 -d : | tr -d ' ')
-	if [ -z $(echo "$netdevices" | grep -x $1) ]; then
+	nic_names="$(ip -d -j link show | jq -r '.[] | if .link_type == "loopback" then empty else .ifname, if .altnames then .altnames[] else empty end end')"
+	if [ -z "$(echo "$nic_names" | grep -x "$1")" ]; then
 		check_result "$E_INVALID" "invalid interface format :: $1"
 	fi
 }
 
 # IP status validator
 is_ip_status_format_valid() {
-	if [ -z "$(echo shared,dedicated | grep -w $1)" ]; then
+	if [ -z "$(echo shared,dedicated | grep -w "$1")" ]; then
 		check_result "$E_INVALID" "invalid status format :: $1"
 	fi
 }
@@ -1580,7 +1580,7 @@ source_conf() {
 format_no_quotes() {
 	exclude="['|\"]"
 	if [[ "$1" =~ $exclude ]]; then
-		check_result "$E_INVALID" "Invalid $2 contains qoutes (\" or ') :: $1"
+		check_result "$E_INVALID" "Invalid $2 contains qoutes (\" or ' or | ) :: $1"
 	fi
 	is_no_new_line_format "$1"
 }

@@ -8,16 +8,14 @@
 			UNLIMITED: '<?= _("Unlimited") ?>',
 			NOTIFICATIONS_EMPTY: '<?= _("No notifications") ?>',
 			NOTIFICATIONS_DELETE_ALL: '<?= _("Delete all notifications") ?>',
-			CONFIRM_LEAVE_PAGE: '<?= _("LEAVE_PAGE_CONFIRMATION") ?>',
-			ERROR_MESSAGE: '<?= !empty($_SESSION['error_msg']) ? htmlentities($_SESSION['error_msg']) : '' ?>',
+			CONFIRM_LEAVE_PAGE: '<?= _("Are you sure you want to leave the page?") ?>',
+			ERROR_MESSAGE: '<?= !empty($_SESSION["error_msg"]) ? htmlentities($_SESSION["error_msg"]) : "" ?>',
 			BLACKLIST: '<?= _("BLACKLIST") ?>',
 			IPVERSE: '<?= _("IPVERSE") ?>'
 		});
 	})
 </script>
-<?php
-$_SESSION['unset_alerts'] = true;
-?>
+<?php $_SESSION["unset_alerts"] = true; ?>
 
 <?php
 $customScriptDirectory = new DirectoryIterator($_SERVER["HESTIA"] . "/web/js/custom_scripts");

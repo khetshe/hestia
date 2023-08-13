@@ -7,7 +7,7 @@
 			</a>
 		</div>
 		<div class="toolbar-buttons">
-			<button type="submit" class="button" form="vstobjects">
+			<button type="submit" class="button" form="main-form">
 				<i class="fas fa-floppy-disk icon-purple"></i><?= _("Save") ?>
 			</button>
 		</div>
@@ -15,13 +15,13 @@
 </div>
 <!-- End toolbar -->
 
-<div class="container animate__animated animate__fadeIn">
+<div class="container">
 
 	<form
 		x-data="{
 			loginDisabled: <?= $v_login_disabled == "yes" ? "true" : "false" ?>
 		}"
-		id="vstobjects"
+		id="main-form"
 		name="v_add_user"
 		method="post"
 	>
@@ -29,14 +29,14 @@
 		<input type="hidden" name="ok" value="Add">
 
 		<div class="form-container">
-			<h1 class="form-title"><?= _("Adding User") ?></h1>
+			<h1 class="u-mb20"><?= _("Add User") ?></h1>
 			<?php show_alert_message($_SESSION); ?>
 			<div class="u-mb10">
 				<label for="v_username" class="form-label"><?= _("Username") ?></label>
 				<input type="text" class="form-control" name="v_username" id="v_username" value="<?= htmlentities(trim($v_username, "'")) ?>" tabindex="1" required>
 			</div>
 			<div class="u-mb10">
-				<label for="v_name" class="form-label"><?= _("Contact") ?></label>
+				<label for="v_name" class="form-label"><?= _("Contact Name") ?></label>
 				<input type="text" class="form-control" name="v_name" id="v_name" value="<?= htmlentities(trim($v_name, "'")) ?>" tabindex="2" required>
 			</div>
 			<div class="u-mb10">
@@ -101,7 +101,7 @@
 				<select class="form-select" name="v_role" id="v_role" required>
 					<option value="user"><?= _("User") ?></option>
 					<option value="admin" <?= $v_role == "admin" ? "selected" : "" ?>><?= _("Administrator") ?></option>
-					<option value="dns-cluster" <?= $v_role == "dns-cluster" ? "selected" : "" ?>><?= _("DNS Sync user") ?></option>
+					<option value="dns-cluster" <?= $v_role == "dns-cluster" ? "selected" : "" ?>><?= _("DNS Sync User") ?></option>
 				</select>
 			</div>
 			<div class="u-mb10">
@@ -124,7 +124,7 @@
 			</div>
 			<div class="u-mb10">
 				<label for="v_notify" class="form-label">
-					<?= _("Send login credentials to email address") ?>
+					<?= _("Email login credentials to:") ?>
 				</label>
 				<input type="email" class="form-control js-sync-email-output" name="v_notify" id="v_notify" value="<?= htmlentities(trim($v_notify, "'")) ?>" tabindex="8">
 			</div>

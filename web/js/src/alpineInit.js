@@ -5,7 +5,7 @@ export default function alpineInit() {
 		/** @param {SubmitEvent} evt */
 		'@submit'(evt) {
 			evt.preventDefault();
-			document.querySelectorAll('.ch-toggle').forEach((el) => {
+			document.querySelectorAll('.js-unit-checkbox').forEach((el) => {
 				if (el.checked) {
 					const input = document.createElement('input');
 					input.type = 'hidden';
@@ -27,7 +27,7 @@ export default function alpineInit() {
 		},
 	});
 	document
-		.querySelectorAll('#vstobjects input, #vstobjects select, #vstobjects textarea')
+		.querySelectorAll('#main-form input, #main-form select, #main-form textarea')
 		.forEach((el) => {
 			el.addEventListener('change', () => {
 				Alpine.store('form').makeDirty();

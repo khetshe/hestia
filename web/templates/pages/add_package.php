@@ -7,7 +7,7 @@
 			</a>
 		</div>
 		<div class="toolbar-buttons">
-			<button type="submit" class="button" form="vstobjects">
+			<button type="submit" class="button" form="main-form">
 				<i class="fas fa-floppy-disk icon-purple"></i><?= _("Save") ?>
 			</button>
 		</div>
@@ -15,7 +15,7 @@
 </div>
 <!-- End toolbar -->
 
-<div class="container animate__animated animate__fadeIn">
+<div class="container">
 
 	<form
 		x-data="{
@@ -25,7 +25,7 @@
 			showDatabaseOptions: false,
 			showSystemOptions: false,
 		}"
-		id="vstobjects"
+		id="main-form"
 		name="v_add_package"
 		method="post"
 	>
@@ -33,7 +33,7 @@
 		<input type="hidden" name="ok" value="Add">
 
 		<div class="form-container">
-			<h1 class="form-title"><?= _("Adding Package") ?></h1>
+			<h1 class="u-mb20"><?= _("Add Package") ?></h1>
 			<?php show_alert_message($_SESSION); ?>
 			<div class="u-mb10">
 				<label for="v_package" class="form-label"><?= _("Package Name") ?></label>
@@ -41,7 +41,7 @@
 			</div>
 			<div class="u-mb10">
 				<label for="v_disk_quota" class="form-label">
-					<?= _("Quota") ?> <span class="optional">(<?= _("in megabytes") ?>)</span>
+					<?= _("Quota") ?> <span class="optional">(<?= _("in MB") ?>)</span>
 				</label>
 				<div class="u-pos-relative">
 					<input type="text" class="form-control" name="v_disk_quota" id="v_disk_quota" value="<?= htmlentities(trim($v_disk_quota, "'")) ?>">
@@ -52,7 +52,7 @@
 			</div>
 			<div class="u-mb10">
 				<label for="v_bandwidth" class="form-label">
-					<?= _("Bandwidth") ?> <span class="optional">(<?= _("in megabytes") ?>)</span>
+					<?= _("Bandwidth") ?> <span class="optional">(<?= _("in MB") ?>)</span>
 				</label>
 				<div class="u-pos-relative">
 					<input type="text" class="form-control" name="v_bandwidth" id="v_bandwidth" value="<?= htmlentities(trim($v_bandwidth, "'")) ?>">
@@ -66,7 +66,7 @@
 				<input type="text" class="form-control" name="v_backups" id="v_backups" value="<?= htmlentities(trim($v_backups, "'")) ?>">
 			</div>
 			<h2 x-on:click="showWebOptions = !showWebOptions" class="section-title">
-				<?= _("Web") ?>
+				<?= _("WEB") ?>
 				<i
 					x-bind:class="showWebOptions ? 'fa-square-minus' : 'fa-square-plus'"
 					class="fas icon-dim icon-maroon js-section-toggle-icon"
@@ -172,7 +172,7 @@
 					</select>
 				</div>
 				<div class="u-mb10">
-					<label for="v_dns_domains" class="form-label"><?= _("DNS domains") ?></label>
+					<label for="v_dns_domains" class="form-label"><?= _("DNS Zones") ?></label>
 					<div class="u-pos-relative">
 						<input type="text" class="form-control" name="v_dns_domains" id="v_dns_domains" value="<?= htmlentities(trim($v_dns_domains, "'")) ?>">
 						<button type="button" class="unlimited-toggle js-unlimited-toggle" title="<?= _("Unlimited") ?>">
@@ -182,7 +182,7 @@
 				</div>
 				<div class="u-mb10">
 					<label for="v_dns_records" class="form-label">
-						<?= _("DNS records") ?> <span class="optional">(<?= _("per domain") ?>)</span>
+						<?= _("DNS Records") ?> <span class="optional">(<?= _("per domain") ?>)</span>
 					</label>
 					<div class="u-pos-relative">
 						<input type="text" class="form-control" name="v_dns_records" id="v_dns_records" value="<?= htmlentities(trim($v_dns_records, "'")) ?>">
@@ -192,7 +192,7 @@
 					</div>
 				</div>
 				<?php if (isset($_SESSION["DNS_SYSTEM"]) && !empty($_SESSION["DNS_SYSTEM"])) { ?>
-					<p class="form-label u-mb10"><?= _("Name servers") ?></p>
+					<p class="form-label u-mb10"><?= _("Name Servers") ?></p>
 					<div class="u-mb5">
 						<input type="text" class="form-control" name="v_ns1" value="<?= htmlentities(trim($v_ns1, "'")) ?>">
 					</div>
@@ -200,50 +200,50 @@
 						<input type="text" class="form-control" name="v_ns2" value="<?= htmlentities(trim($v_ns2, "'")) ?>">
 					</div>
 					<?php
-						if($v_ns3) {
+						if ($v_ns3) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns3" value="'.htmlentities(trim($v_ns3, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
-						if($v_ns4) {
+						if ($v_ns4) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns4" value="'.htmlentities(trim($v_ns4, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
-						if($v_ns5) {
+						if ($v_ns5) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns5" value="'.htmlentities(trim($v_ns5, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
-						if($v_ns6) {
+						if ($v_ns6) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns6" value="'.htmlentities(trim($v_ns6, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
-						if($v_ns7) {
+						if ($v_ns7) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns7" value="'.htmlentities(trim($v_ns7, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
-						if($v_ns8) {
+						if ($v_ns8) {
 							echo '<div class="u-side-by-side u-mb5">
 								<input type="text" class="form-control" name="v_ns8" value="'.htmlentities(trim($v_ns8, "'")).'">
 								<span class="u-ml10 js-remove-ns"><i class="fas fa-trash icon-dim icon-red"></i></span>
 							</div>';
 						}
 					?>
-					<div class="u-pt18 js-add-ns" <?php if ($v_ns8) echo 'style="display:none;"'; ?>>
-						<span class="form-link"><?= _("Add Name Server") ?></span>
-					</div>
+					<button type="button" class="form-link u-mt20 js-add-ns" <?php if ($v_ns8) echo 'style="display:none;"'; ?>>
+						<?= _("Add Name Server") ?>
+					</button>
 				<?php } ?>
 			</div>
 			<h2 x-on:click="showMailOptions = !showMailOptions" class="section-title">
-				<?= _("Mail") ?>
+				<?= _("MAIL") ?>
 				<i
 					x-bind:class="showMailOptions ? 'fa-square-minus' : 'fa-square-plus'"
 					class="fas icon-dim icon-maroon js-section-toggle-icon"
@@ -272,13 +272,13 @@
 				</div>
 				<div class="u-mb10">
 					<label for="v_ratelimit" class="form-label">
-						<?= _("Rate limit") ?> <span class="optional">(<?= _("per account / hour") ?>)</span>
+						<?= _("Rate Limit") ?> <span class="optional">(<?= _("per account / hour") ?>)</span>
 					</label>
 					<input type="text" class="form-control" name="v_ratelimit" id="v_ratelimit" value="<?= htmlentities(trim($v_ratelimit, "'")) ?>">
 				</div>
 			</div>
 			<h2 x-on:click="showDatabaseOptions = !showDatabaseOptions" class="section-title">
-				<?= _("Databases") ?>
+				<?= _("DB") ?>
 				<i
 					x-bind:class="showDatabaseOptions ? 'fa-square-minus' : 'fa-square-plus'"
 					class="fas icon-dim icon-maroon js-section-toggle-icon"
